@@ -5,37 +5,56 @@ package client;
  * User: Dror
  * Date: 20/06/14
  * Time: 15:57
- * To change this template use File | Settings | File Templates.
  */
 import java.io.*;
 import java.net.*;
+
 public class Client {
 
     Socket requestSocket;
     ObjectOutputStream out;
     ObjectInputStream in;
     String message;
-    Client(){}
+    boolean triggered;
 
-    void initConnection() {
+    Client(){
+        triggered = false;
+    }
+
+    void  initConnection() {
         try {
             requestSocket = new Socket("localhost", 2004);
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
             System.out.println("Connected to localhost in port 2004");
-
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     void run() {
+
+        while(!triggered){
+
+            triggered = checkForTrigger();
+
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+
+        initConnection();
+
         try{
             do{
                 try{
                     message = (String)in.readObject();
-                    System.out.println("server: " + message);
+
+                    handleMessage(message);
                 }
                 catch(ClassNotFoundException classNot){
                     System.err.println("data received in unknown format");
@@ -48,7 +67,20 @@ public class Client {
         catch(IOException ioException){
             ioException.printStackTrace();
         }
+        finally {
+            closeConnection();
+        }
     }
+
+    private boolean checkForTrigger() {
+        // TODO
+        return false;
+    }
+
+    private void handleMessage(String message) {
+        System.out.println("server: " + message);
+    }
+
     void sendMessage(String msg)
     {
         try{

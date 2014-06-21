@@ -41,9 +41,9 @@ public class Server {
                 message = bufferedReader.readLine();
 
                 if (message.equals("quit"))
-                    sendMessage("closing connection");
-                else
-                    sendMessage(message);
+                    System.out.println("closing connection");
+
+                sendMessage(message);
 
             }while(!message.equals("quit"));
         }
