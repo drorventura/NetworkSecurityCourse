@@ -7,18 +7,18 @@ import java.net.Socket;
 public class Listener implements Runnable
 {
     private ServerSocket serverSocket;
-    private Shell shell;
+    private Server server;
 
-    public Listener(Shell shell)
+    public Listener(Server server)
     {
-        this.shell = shell;
+        this.server = server;
 
         try {
-            serverSocket = new ServerSocket(2014);
-            Server.running = true;
+            serverSocket = new ServerSocket(server.getPort());
+            server.setRunning(true);
 
         } catch (IOException e){
-            Server.running = false;
+            server.setRunning(false);
             e.printStackTrace();
         }
     }
@@ -26,19 +26,19 @@ public class Listener implements Runnable
     @Override
     public void run()
     {
-        while(Server.running)
+        while(server.isRunning())
         {
             try {
                 Socket connection = serverSocket.accept();
 
-                ConnectionHandler connectionHandler = new ConnectionHandler(connection);
-                shell.addObserver(connectionHandler);
+                ConnectionHandler connectionHandler = new ConnectionHandler(server,connection);
+                server.addObserver(connectionHandler);
 
                 System.out.println("Connection received from " + connection.getInetAddress().getHostName());
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Server.running = false;
+                server.setRunning(false);
             }
         }
     }

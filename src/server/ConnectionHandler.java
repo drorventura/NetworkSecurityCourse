@@ -7,17 +7,19 @@ import java.util.Observer;
 
 public class ConnectionHandler implements Observer
 {
+    private Server server;
     private Socket connection = null;
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    public ConnectionHandler(Socket connection)
+    public ConnectionHandler(Server server, Socket connection)
     {
         this.connection = connection;
+        this.server = server;
         try {
+            in = new ObjectInputStream(connection.getInputStream());
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
-            in = new ObjectInputStream(connection.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,7 +44,7 @@ public class ConnectionHandler implements Observer
     {
         System.out.println("closing connection");
 
-        try{
+        try {
             in.close();
             out.close();
             connection.close();
@@ -58,10 +60,22 @@ public class ConnectionHandler implements Observer
         System.out.println("in update");
         String message = (String) arg;
 
-        if (message.equals("quit"))
-            closeConnetion();
-        else
-            sendMessage(message);
+        switch (message)
+        {
+            case "0":
+                sendMessage(message);
+                server.deleteObserver(this);
+                break;
+
+            case "quit":
+                closeConnetion();
+                break;
+
+            default:
+                sendMessage(message);
+                break;
+        }
+
     }
 }
 

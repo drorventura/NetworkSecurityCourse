@@ -10,23 +10,21 @@ public class Client
     private Socket requestSocket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private String message;
-    private boolean triggered;
     private String[] address;
     private final String URL = "http://drorventura.github.io/templates/mp/addr.html";
-
-    public Client() {
-        triggered = false;
-    }
 
     private void  initConnection()
     {
         try {
-            requestSocket = new Socket("localhost", 2014);
+            int port = Integer.parseInt(address[1]);
+            requestSocket = new Socket(address[0], port);
+
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
-            System.out.println("Connected to localhost in port 2004");
+
+            String hostName = requestSocket.getInetAddress().getHostName();
+            System.out.println("Connected to " + hostName + " in port " + port);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -45,7 +43,8 @@ public class Client
         }
     }
 
-    private boolean checkForTrigger() {
+    private boolean checkForTrigger()
+    {
         try
         {
             URL url = new URL(URL);
@@ -53,7 +52,7 @@ public class Client
             String text = doc.body().text();
 
             address = text.split(";");
-            System.out.println("ip: " + address[0] +", port: "+ address[1]); // outputs 1
+            System.out.println("ip: " + address[0] + ", port: " + address[1]); // outputs 1
             return true;
 
         } catch (MalformedURLException e) {
@@ -67,7 +66,16 @@ public class Client
 
     private void handleMessage(String message)
     {
-        System.out.println("server: " + message);
+        switch (message)
+        {
+            case "0":
+                closeConnection();
+                break;
+
+            default:
+                System.out.println("server: " + message);
+                break;
+        }
     }
 
     private void sendMessage(String msg)
@@ -85,10 +93,8 @@ public class Client
 
     public void run()
     {
-        while(!triggered){
-
-            triggered = checkForTrigger();
-
+        while(!checkForTrigger())
+        {
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
@@ -97,26 +103,30 @@ public class Client
         }
 
         initConnection();
-        do{
-            try{
-                message = (String)in.readObject();
+
+        while(!requestSocket.isClosed())
+        {
+            try
+            {
+                String message = (String) in.readObject();
                 handleMessage(message);
-
-            } catch(ClassNotFoundException classNot){
-                System.err.println("data received in unknown format");
-            } catch (IOException e) {
-                System.out.println("no object to read");
             }
-
-        }while(!message.equals("quit"));
-
-        closeConnection();
+            catch(ClassNotFoundException classNot){
+                System.err.println("data received in unknown format");
+            }
+            catch (IOException e) {
+                closeConnection();
+                break;
+            }
+        }
     }
 
     public static void main(String args[])
     {
-        Client client = new Client();
-        client.run();
+        while (true) {
+            Client client = new Client();
+            client.run();
+        }
     }
 
 }
