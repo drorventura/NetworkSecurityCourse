@@ -55,8 +55,6 @@ public class Client
             System.out.println("ip: " + address[0] + ", port: " + address[1]); // outputs 1
             return true;
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
