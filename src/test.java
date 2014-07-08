@@ -2,13 +2,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Dror
- * Date: 20/06/14
- * Time: 14:57
- * To change this template use File | Settings | File Templates.
- */
 public class test
 {
     public static void main(String[] args) {
