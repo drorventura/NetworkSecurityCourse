@@ -1,29 +1,28 @@
 package client;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Dror
- * Date: 20/06/14
- * Time: 15:57
- */
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import java.io.*;
 import java.net.*;
 
-public class Client {
+public class Client
+{
+    private Socket requestSocket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private String message;
+    private boolean triggered;
+    private String[] address;
+    private final String URL = "http://drorventura.github.io/templates/mp/addr.html";
 
-    Socket requestSocket;
-    ObjectOutputStream out;
-    ObjectInputStream in;
-    String message;
-    boolean triggered;
-
-    Client(){
+    public Client() {
         triggered = false;
     }
 
-    void  initConnection() {
+    private void  initConnection()
+    {
         try {
-            requestSocket = new Socket("localhost", 2004);
+            requestSocket = new Socket("localhost", 2014);
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
@@ -34,54 +33,44 @@ public class Client {
         }
     }
 
-    void run() {
-
-        while(!triggered){
-
-            triggered = checkForTrigger();
-
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-        }
-
-        initConnection();
-
+    private void closeConnection()
+    {
         try{
-            do{
-                try{
-                    message = (String)in.readObject();
-
-                    handleMessage(message);
-                }
-                catch(ClassNotFoundException classNot){
-                    System.err.println("data received in unknown format");
-                }
-            }while(!message.equals("quit"));
-        }
-        catch(UnknownHostException unknownHost){
-            System.err.println("You are trying to connect to an unknown host!");
+            in.close();
+            out.close();
+            requestSocket.close();
         }
         catch(IOException ioException){
             ioException.printStackTrace();
         }
-        finally {
-            closeConnection();
-        }
     }
 
     private boolean checkForTrigger() {
-        // TODO
+        try
+        {
+            URL url = new URL(URL);
+            Document doc = Jsoup.parse(url, 1000 * 3);
+            String text = doc.body().text();
+
+            address = text.split(";");
+            System.out.println("ip: " + address[0] +", port: "+ address[1]); // outputs 1
+            return true;
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return false;
     }
 
-    private void handleMessage(String message) {
+    private void handleMessage(String message)
+    {
         System.out.println("server: " + message);
     }
 
-    void sendMessage(String msg)
+    private void sendMessage(String msg)
     {
         try{
             out.writeObject(msg);
@@ -94,15 +83,34 @@ public class Client {
         }
     }
 
-    void closeConnection() {
-        try{
-            in.close();
-            out.close();
-            requestSocket.close();
+    public void run()
+    {
+        while(!triggered){
+
+            triggered = checkForTrigger();
+
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        catch(IOException ioException){
-            ioException.printStackTrace();
-        }
+
+        initConnection();
+        do{
+            try{
+                message = (String)in.readObject();
+                handleMessage(message);
+
+            } catch(ClassNotFoundException classNot){
+                System.err.println("data received in unknown format");
+            } catch (IOException e) {
+                System.out.println("no object to read");
+            }
+
+        }while(!message.equals("quit"));
+
+        closeConnection();
     }
 
     public static void main(String args[])
