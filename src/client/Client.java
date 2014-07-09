@@ -4,36 +4,47 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import java.io.*;
 import java.net.*;
+import java.util.UUID;
 
 public class Client
 {
+    private UUID uniqueId;
     private Socket requestSocket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private String[] address;
     private final String URL = "http://drorventura.github.io/templates/mp/addr.html";
 
-    private void  initConnection()
+    public Client(UUID uniqueId)
+    {
+        this.uniqueId = uniqueId;
+    }
+
+    private boolean  initConnection()
     {
         try {
-            int port = Integer.parseInt(address[1]);
-            requestSocket = new Socket(address[0], port);
+            int port = Integer.parseInt(address[2]);
+            requestSocket = new Socket(address[1], port);
 
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
 
             String hostName = requestSocket.getInetAddress().getHostName();
-            System.out.println("Connected to " + hostName + " in port " + port);
+
+            sendMessage("1;" + uniqueId);
+//            System.out.println("Connected to " + hostName + " in port " + port);
+            return true;
         }
         catch (IOException e) {
-            e.printStackTrace();
+            return false;
         }
     }
 
     private void closeConnection()
     {
         try{
+            sendMessage(uniqueId + "; is closing connection");
             in.close();
             out.close();
             requestSocket.close();
@@ -52,13 +63,16 @@ public class Client
             String text = doc.body().text();
 
             address = text.split(";");
-            System.out.println("ip: " + address[0] + ", port: " + address[1]); // outputs 1
-            return true;
+//            System.out.println("ip: " + address[0] + ", port: " + address[1]); // outputs 1
 
+            if (address[0].equals("1"))
+            {
+                System.out.println(address[0] + ";" + address[1] + ";" + address[2]);
+                return true;
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            return false;
         }
-
         return false;
     }
 
@@ -71,7 +85,8 @@ public class Client
                 break;
 
             default:
-                System.out.println("server: " + message);
+//                System.out.println("server: " + message);
+                sendMessage(uniqueId + "; recived message - " + message);
                 break;
         }
     }
@@ -81,8 +96,6 @@ public class Client
         try{
             out.writeObject(msg);
             out.flush();
-
-            System.out.println("client: " + msg);
         }
         catch(IOException ioException){
             ioException.printStackTrace();
@@ -100,7 +113,8 @@ public class Client
             }
         }
 
-        initConnection();
+        if(!initConnection())
+            return;
 
         while(!requestSocket.isClosed())
         {
@@ -110,7 +124,8 @@ public class Client
                 handleMessage(message);
             }
             catch(ClassNotFoundException classNot){
-                System.err.println("data received in unknown format");
+//                System.err.println("data received in unknown format");
+                sendMessage(uniqueId + "; data received in unknown format");
             }
             catch (IOException e) {
                 closeConnection();
@@ -118,13 +133,4 @@ public class Client
             }
         }
     }
-
-    public static void main(String args[])
-    {
-        while (true) {
-            Client client = new Client();
-            client.run();
-        }
-    }
-
 }
