@@ -44,8 +44,6 @@ public class Client
     private void closeConnection()
     {
         try{
-            sendMessage(uniqueId + ";0");
-            sendMessage(uniqueId + ";" + "done");
             in.close();
             out.close();
             requestSocket.close();
@@ -82,6 +80,8 @@ public class Client
         switch (message)
         {
             case "10000":
+                sendMessage(uniqueId + ";0");
+                sendMessage(uniqueId + ";" + "done");
                 closeConnection();
                 break;
 

