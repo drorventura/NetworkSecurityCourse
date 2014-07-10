@@ -1,5 +1,8 @@
 package server;
 
+import protocol.Protocol;
+import protocol.ProtocolImpl;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Observable;
@@ -11,20 +14,27 @@ public class ConnectionHandler implements Observer
     private Socket connection = null;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private Protocol protocol;
 
     public ConnectionHandler(Server server, Socket connection)
     {
         this.connection = connection;
         this.server = server;
         try {
+            protocol = new ProtocolImpl();
             in = new ObjectInputStream(connection.getInputStream());
             out = new ObjectOutputStream(connection.getOutputStream());
             out.flush();
-        } catch (IOException e) {
+
+            Object object = in.readObject();
+            if(object instanceof String){
+                String message = (String) object;
+                protocol.processMessage(message);
+            }
+
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
-        sendMessage("Connection successful");
     }
 
     void sendMessage(String msg)
@@ -32,15 +42,13 @@ public class ConnectionHandler implements Observer
         try{
             out.writeObject(msg);
             out.flush();
-
-            System.out.println("**Message** " + msg);
         }
         catch(IOException ioException){
             ioException.printStackTrace();
         }
     }
 
-    private void closeConnetion()
+    private void closeConnection()
     {
         System.out.println("closing connection");
 
@@ -57,25 +65,50 @@ public class ConnectionHandler implements Observer
     @Override
     public void update(Observable o, Object arg)
     {
-        System.out.println("in update");
-        String message = (String) arg;
+        String message = protocol.prepareMessage((String) arg);
 
-        switch (message)
+        if(message.equals("00000"))
         {
-            case "0":
-                sendMessage(message);
-                server.deleteObserver(this);
-                break;
-
-            case "quit":
-                closeConnetion();
-                break;
-
-            default:
-                sendMessage(message);
-                break;
+            System.out.println("Invalid command");
         }
+        else
+        {
+            sendMessage(message);
+            receiveMessages();
 
+            if (message.equals("10000"))
+            {
+                server.deleteObserver(this);
+                closeConnection();
+            }
+        }
+    }
+
+    private void receiveMessages()
+    {
+        System.out.println("Waiting for response");
+
+        boolean done = false;
+        while (!done)
+        {
+            try
+            {
+                Object object = in.readObject();
+                if(object instanceof String)
+                {
+                    String message = (String) object;
+                    done = protocol.processMessage(message);
+                }
+                if(object instanceof File)
+                {
+                    File message = (File) object;
+                    protocol.processMessage(message);
+                }
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }
-

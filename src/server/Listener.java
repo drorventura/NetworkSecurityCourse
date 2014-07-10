@@ -37,7 +37,6 @@ public class Listener implements Runnable
                 System.out.println("Connection received from " + connection.getInetAddress().getHostName());
 
             } catch (IOException e) {
-                e.printStackTrace();
                 server.setRunning(false);
             }
         }
