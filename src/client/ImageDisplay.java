@@ -29,9 +29,10 @@ public class ImageDisplay
         }
 
         UUID uniqueId = UUID.randomUUID();
+        Client client = new Client(uniqueId);
+
         while (true)
         {
-            Client client = new Client(uniqueId);
             client.run();
         }
     }

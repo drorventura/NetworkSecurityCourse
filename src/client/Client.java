@@ -22,7 +22,8 @@ public class Client
 
     private boolean  initConnection()
     {
-        try {
+        try
+        {
             int port = Integer.parseInt(address[2]);
             requestSocket = new Socket(address[1], port);
 
@@ -30,10 +31,9 @@ public class Client
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
 
-            String hostName = requestSocket.getInetAddress().getHostName();
+//            String hostName = requestSocket.getInetAddress().getHostName();
 
-            sendMessage("1;" + uniqueId);
-//            System.out.println("Connected to " + hostName + " in port " + port);
+            sendMessage(uniqueId + ";1");
             return true;
         }
         catch (IOException e) {
@@ -44,7 +44,8 @@ public class Client
     private void closeConnection()
     {
         try{
-            sendMessage(uniqueId + "; is closing connection");
+            sendMessage(uniqueId + ";0");
+            sendMessage(uniqueId + ";" + "done");
             in.close();
             out.close();
             requestSocket.close();
@@ -67,7 +68,7 @@ public class Client
 
             if (address[0].equals("1"))
             {
-                System.out.println(address[0] + ";" + address[1] + ";" + address[2]);
+//                System.out.println(address[0] + ";" + address[1] + ";" + address[2]);
                 return true;
             }
         } catch (IOException e) {
@@ -80,13 +81,13 @@ public class Client
     {
         switch (message)
         {
-            case "0":
+            case "10000":
                 closeConnection();
                 break;
 
             default:
-//                System.out.println("server: " + message);
-                sendMessage(uniqueId + "; recived message - " + message);
+                sendMessage(uniqueId + ";recived message - " + message);
+                sendMessage(uniqueId + ";" + "done");
                 break;
         }
     }
@@ -124,8 +125,7 @@ public class Client
                 handleMessage(message);
             }
             catch(ClassNotFoundException classNot){
-//                System.err.println("data received in unknown format");
-                sendMessage(uniqueId + "; data received in unknown format");
+                sendMessage(uniqueId + ";data received in unknown format");
             }
             catch (IOException e) {
                 closeConnection();
