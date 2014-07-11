@@ -43,21 +43,26 @@ public class ConnectionHandler implements Observer
             out.writeObject(msg);
             out.flush();
         }
-        catch(IOException ioException){
-            ioException.printStackTrace();
+        catch(IOException ioException)
+        {
+            String error = "Connection Was Lost While Writing - " + connection.getRemoteSocketAddress();
+            System.out.println(error);
+            server.deleteObserver(this);
         }
     }
 
     private void closeConnection()
     {
-        System.out.println("closing connection");
+        System.out.println("Closing Connection - " + connection.getRemoteSocketAddress());
 
-        try {
+        try
+        {
             in.close();
             out.close();
             connection.close();
         }
-        catch(IOException ioException){
+        catch(IOException ioException)
+        {
             ioException.printStackTrace();
         }
     }
@@ -107,7 +112,10 @@ public class ConnectionHandler implements Observer
             }
             catch (IOException | ClassNotFoundException e)
             {
-                e.printStackTrace();
+                done = true;
+                String error = "Connection Was Lost While Reading - " + connection.getRemoteSocketAddress();
+                System.out.println(error);
+                server.deleteObserver(this);
             }
         }
     }

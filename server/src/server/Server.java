@@ -47,7 +47,6 @@ public class Server extends Observable
                     setChanged();
 
                     if (message.equals("quit")){
-                        System.out.println("closing connection");
                         notifyObservers("0");
                     }
                     else
@@ -61,7 +60,7 @@ public class Server extends Observable
                 ioException.printStackTrace();
             } finally {
                 setRunning(false);
-
+                System.out.println("Server is shutting down");
                 // shutdown gracefully
                 try {
                     Thread.sleep(10000);
@@ -89,6 +88,12 @@ public class Server extends Observable
 
     public static void main(String args[])
     {
+        if (args.length < 1)
+        {
+            System.out.println("Port is missing");
+            System.exit(1);
+        }
+
         Server server = new Server();
         server.setPort(args[0]);
 
