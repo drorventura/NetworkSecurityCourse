@@ -1,10 +1,10 @@
 package protocol;
 
-import java.io.File;
+import utils.FileData;
 
 public interface Protocol
 {
-    public boolean processMessage(File file);
+    public boolean processMessage(FileData fileData);
     public boolean processMessage(String string);
     public String prepareMessage(String message);
 }

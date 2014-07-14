@@ -1,14 +1,40 @@
 package protocol;
 
+import utils.FileData;
+
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class ProtocolImpl implements Protocol
 {
     @Override
-    public boolean processMessage(File file)
+    public boolean processMessage(FileData fileData)
     {
-        System.out.println("file");
-        // TODO
+        String destinationDirectory = fileData.getDestinationDirectory();
+        File file = new File (destinationDirectory);
+
+        if (!file.exists())
+        {
+            new File(destinationDirectory).mkdirs();
+        }
+
+        String outputPath = destinationDirectory + fileData.getFilename();
+        File outputFile = new File(outputPath);
+
+        try
+        {
+            FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+            fileOutputStream.write(fileData.getFileData());
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        System.out.println("Output file : " + outputFile + " is successfully saved ");
         return false;
     }
 
