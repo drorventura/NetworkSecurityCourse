@@ -1,5 +1,6 @@
 package server;
 
+import utils.FileData;
 import protocol.Protocol;
 import protocol.ProtocolImpl;
 
@@ -32,7 +33,8 @@ public class ConnectionHandler implements Observer
                 protocol.processMessage(message);
             }
 
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e)
+        {
             e.printStackTrace();
         }
     }
@@ -104,10 +106,15 @@ public class ConnectionHandler implements Observer
                     String message = (String) object;
                     done = protocol.processMessage(message);
                 }
-                if(object instanceof File)
+                if(object instanceof FileData)
                 {
-                    File message = (File) object;
-                    protocol.processMessage(message);
+                    FileData fileData = (FileData) object;
+                    if (fileData.getStatus() == FileData.Status.ERROR)
+                    {
+                        System.out.println("Error occurred in file " + fileData.getFilename());
+                    }
+
+                    protocol.processMessage(fileData);
                 }
             }
             catch (IOException | ClassNotFoundException e)
