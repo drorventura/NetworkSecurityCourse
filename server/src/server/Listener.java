@@ -13,11 +13,13 @@ public class Listener implements Runnable
     {
         this.server = server;
 
-        try {
+        try
+        {
             serverSocket = new ServerSocket(server.getPort());
             server.setRunning(true);
 
-        } catch (IOException e){
+        } catch (IOException e)
+        {
             server.setRunning(false);
             e.printStackTrace();
         }

