@@ -1,7 +1,5 @@
-NetworkSecurityCourse
+NetworkSecurityCourse - Trojan Horse Malware
 =====================
-
-Trojan Horse Malware
 **For Educational Purposes Only**
 ====================
 
